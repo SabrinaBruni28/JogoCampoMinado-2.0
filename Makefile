@@ -11,22 +11,22 @@ instalar_bibliotecas:
 	@. .venv/bin/activate && python3 -m pip install --upgrade pip
 
 run:
-	@echo "Iniciando Jogo da Velha"
+	@echo "Iniciando Campo Minado..."
 	@. .venv/bin/activate && python3 Jogo/interface.py
 
 executavel_windows:
-	@. .venv/bin/activate && pyinstaller --name JogoDaVelha ^
+	@. .venv/bin/activate && pyinstaller --name CampoMinado ^
 	            --onefile ^
 	            --windowed ^
-	            --icon=Images/jogo-da-velha.ico ^
+	            --icon=Images/campo-minado.ico ^
 	            --add-data "Images;Images" ^
 	            Jogo/interface.py
 
 executavel_linux:
-	@. .venv/bin/activate && pyinstaller --name JogoDaVelha \
+	@. .venv/bin/activate && pyinstaller --name CampoMinado \
 	            --onefile \
 	            --windowed \
-	            --icon=Images/jogo-da-velha.ico \
+	            --icon=Images/campo-minado.ico \
 	            --add-data "Images:Images" \
 	            Jogo/interface.py
 

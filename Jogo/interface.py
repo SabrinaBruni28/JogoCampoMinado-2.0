@@ -169,7 +169,7 @@ class CampoMinadoInterface(QMainWindow):
             return
 
         if self.jogo.existe_numero(posicao1, posicao2):
-            imagem = WidgetHelper.imagem(nome_image, scaled=30)
+            imagem = WidgetHelper.imagem(nome_image, scaled=self.tamanho_imagem)
             layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self.jogo.marcar_posicao_revelada(posicao1, posicao2)
@@ -187,7 +187,7 @@ class CampoMinadoInterface(QMainWindow):
 
         if not self.jogo.existe_alerta(posicao1, posicao2):
             self.jogo.marcar_posicao_alerta(posicao1, posicao2)
-            imagem = WidgetHelper.imagem(self.jogo.alerta, scaled=30)
+            imagem = WidgetHelper.imagem(self.jogo.alerta, scaled=self.tamanho_imagem)
             imagem.setObjectName("bandeira")  # <–– nome para identificar depois
             layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
@@ -215,7 +215,7 @@ class CampoMinadoInterface(QMainWindow):
                     nome_image = self.jogo.retorna_imagem(i, j)
                     bloco = self.grid.itemAtPosition(i, j).widget()
                     layout = bloco.layout()
-                    imagem = WidgetHelper.imagem(nome_image, scaled=30)
+                    imagem = WidgetHelper.imagem(nome_image, scaled=self.tamanho_imagem)
                     layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
     def fim_jogo(self, vencedor):
@@ -277,7 +277,13 @@ class CampoMinadoInterface(QMainWindow):
         barra_superior = self.barra_superior()
         layout_conteudo.addLayout(barra_superior)
 
-        tela_lista = self.tela_lista_blocos(n=self.jogo.tamanho, m=self.jogo.tamanho)
+        self.tamanho = 530 // self.jogo.tamanho
+        self.tamanho_imagem = int(self.tamanho * 0.8)
+
+        tela_lista = self.tela_lista_blocos(
+            n=self.jogo.tamanho, m=self.jogo.tamanho,
+            largura=self.tamanho, altura=self.tamanho
+        )
         layout_conteudo.addWidget(tela_lista)
 
         # Agora adiciona o conteúdo principal no layout horizontal
@@ -339,6 +345,18 @@ class CampoMinadoInterface(QMainWindow):
         layout_horizontal = QHBoxLayout()
 
         opcao_1 = WidgetHelper.botao(
+            nome="8x8",
+            largura=400, altura= 100,
+            fonte= 80,
+            backcolor="#D12A2A",
+            hover='#FF4C4C',
+            pressed='#E04343',
+            border='solid #FF4C4C',
+            acao= lambda: (self.jogo.reiniciar_jogo(8), self.view.abrir_tela(self.stack, self.tela_jogo))
+        )
+        layout_horizontal.addWidget(opcao_1)
+
+        opcao_2 = WidgetHelper.botao(
             nome="10x10",
             largura=400, altura= 100,
             fonte= 80,
@@ -348,19 +366,19 @@ class CampoMinadoInterface(QMainWindow):
             border='solid #FF4C4C',
             acao= lambda: (self.jogo.reiniciar_jogo(10), self.view.abrir_tela(self.stack, self.tela_jogo))
         )
-        layout_horizontal.addWidget(opcao_1)
+        layout_horizontal.addWidget(opcao_2)
 
-        opcao_2 = WidgetHelper.botao(
-            nome="15x15",
+        opcao_3 = WidgetHelper.botao(
+            nome="16x16",
             largura=400, altura= 100,
             fonte= 80,
             backcolor="#D12A2A",
             hover='#FF4C4C',
             pressed='#E04343',
             border='solid #FF4C4C',
-            acao= lambda: (self.jogo.reiniciar_jogo(15), self.view.abrir_tela(self.stack, self.tela_jogo))
+            acao= lambda: (self.jogo.reiniciar_jogo(16), self.view.abrir_tela(self.stack, self.tela_jogo))
         )
-        layout_horizontal.addWidget(opcao_2)
+        layout_horizontal.addWidget(opcao_3)
         layout_vertical.addLayout(layout_horizontal, Qt.AlignmentFlag.AlignCenter)
         layout_vertical.addSpacing(100)
 
