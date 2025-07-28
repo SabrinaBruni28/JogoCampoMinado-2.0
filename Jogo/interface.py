@@ -145,11 +145,9 @@ class CampoMinadoInterface(QMainWindow):
 
     def mostrar_vencedor(self, vencedor):
         if vencedor == 1:
-            texto = "Jogador X venceu!"
-        elif vencedor == 2:
-            texto = "Jogador O venceu!"
+            texto = "Você venceu!"
         elif vencedor == -1:
-            texto = "Empate!"
+            texto = "Você perdeu!"
         else:
             return
 
