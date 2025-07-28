@@ -27,27 +27,24 @@ class CampoMinado:
                     self.jogo[i][j] = contador
 
     def coloca_bomba(self):
-        num_bombas = self.tamanho
+        # Definindo um número de bombas proporcional ao tamanho do campo
+        self.num_bombas = (self.tamanho * self.tamanho) // 4
         bombas = 0
 
         # Inicializa o gerador de números aleatórios
         random.seed(int(time.time()))
 
         # Loop de colocação de bombas
-        while bombas < num_bombas:
-            posicao1 = random.randint(0, num_bombas - 1)
-            posicao2 = random.randint(0, num_bombas - 1)
+        while bombas < self.num_bombas:
+            posicao1 = random.randint(0, self.num_bombas - 1)
+            posicao2 = random.randint(0, self.num_bombas - 1)
 
             if self.posicao_vazia(posicao1, posicao2):
                 self.jogo[posicao1][posicao2] = -1  # Marca a posição com uma bomba
                 bombas += 1
 
-    def colocar_alertas(self, posicao1, posicao2):
-        self.jogo[posicao1][posicao2] = -2  # Marca a posição com um alerta
-
     def posicao_vazia(self, posicao1, posicao2):
-        # Verifica se a posição está dentro dos limites da matriz
-        return self.jogo[posicao1][posicao2] == 100
+        return 0 <= posicao1 < self.tamanho and 0 <= posicao2 < self.tamanho and self.jogo[posicao1][posicao2] == 100
 
     def existe_bomba(self, posicao1, posicao2):
         # Verifica se já existe uma bomba na posição
@@ -57,17 +54,31 @@ class CampoMinado:
         # Verifica se a posição está vazia (sem bomba)
         return self.jogo[posicao1][posicao2] == 0
     
+    def revelada(self, posicao1, posicao2):
+        return self.reveladas[posicao1][posicao2]
+
+    def marcar_posicao_revelada(self, x, y):
+        self.reveladas[x][y] = True
+
+    def marcar_posicao_alerta(self, x, y):
+        self.alertas[x][y] = True
+
+    def tirar_alerta(self, posicao1, posicao2):
+        self.alertas[posicao1][posicao2] = False
+
+    def existe_alerta(self, posicao1, posicao2):
+        # Verifica se já existe um alerta (bandeira) na posição
+        return self.alertas[posicao1][posicao2]
+
     def existe_numero(self, posicao1, posicao2):
         # Verifica se a posição contém um número (não é bomba)
         return self.jogo[posicao1][posicao2] >= 0
-    
-    def existe_alerta(self, posicao1, posicao2):
-        # Verifica se a posição contém um alerta
-        return self.jogo[posicao1][posicao2] == -2
 
     def reiniciar_jogo(self, tamanho=10):
         # Resetar matriz do jogo
         self.tamanho = tamanho
+        self.reveladas = [[False for _ in range(tamanho)] for _ in range(tamanho)]
+        self.alertas = [[False for _ in range(tamanho)] for _ in range(tamanho)]
         self.jogo = [[100 for _ in range(self.tamanho)] for _ in range(self.tamanho)]
         self.coloca_bomba()
         self.completa_matriz()
@@ -75,4 +86,10 @@ class CampoMinado:
     def revelar_posicao(self, posicao1, posicao2):
         # Revela a posição na matriz
         return self.jogo[posicao1][posicao2]
-        return None
+    
+    def venceu(self):
+        total_casas = self.tamanho * self.tamanho
+        total_bombas = self.num_bombas
+        total_reveladas = sum(sum(1 for cell in row if cell) for row in self.reveladas)
+
+        return total_reveladas == total_casas - total_bombas

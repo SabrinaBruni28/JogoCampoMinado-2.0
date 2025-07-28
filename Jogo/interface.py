@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 )
 
 class MensagemVencedor(QWidget):
-    def __init__(self, parent=None, mensagem="", on_reiniciar=None):
+    def __init__(self, parent=None, mensagem="", cor_texto="red", on_reiniciar=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -23,9 +23,8 @@ class MensagemVencedor(QWidget):
 
         container = QWidget()
         container.setStyleSheet("background-color: white; border-radius: 20px;")
-        
-        container.setMinimumSize(500, 160)  # menor altura mínima
-        container.setMaximumHeight(300)     # limite máximo
+        container.setMinimumSize(500, 160)
+        container.setMaximumHeight(300)
 
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(40, 40, 40, 40)
@@ -33,9 +32,9 @@ class MensagemVencedor(QWidget):
         container_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.label = QLabel(mensagem)
-        self.label.setStyleSheet("color: red;")
+        self.label.setStyleSheet(f"color: {cor_texto};")  # ← cor dinâmica
         font = QFont()
-        font.setPointSize(32)  # menor fonte
+        font.setPointSize(32)
         font.setBold(True)
         self.label.setFont(font)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -45,23 +44,22 @@ class MensagemVencedor(QWidget):
         self.label.setMaximumHeight(150)
 
         self.botao_reiniciar = QPushButton("Reiniciar")
-        self.botao_reiniciar.setFixedSize(250, 60)  # menor botão
-        self.botao_reiniciar.setStyleSheet("""
-            QPushButton {
-                background-color: red;
+        self.botao_reiniciar.setFixedSize(250, 60)
+        self.botao_reiniciar.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {cor_texto};
                 color: white;
                 font-size: 28px;
                 border-radius: 15px;
-            }
-            QPushButton:hover {
-                background-color: darkred;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: dark{cor_texto};
+            }}
         """)
         self.botao_reiniciar.clicked.connect(lambda: on_reiniciar() if on_reiniciar else None)
 
         container_layout.addWidget(self.label)
         container_layout.addWidget(self.botao_reiniciar)
-
         layout.addWidget(container)
 
 class CampoMinadoInterface(QMainWindow):
@@ -75,6 +73,7 @@ class CampoMinadoInterface(QMainWindow):
         self.setCentralWidget(self.stack)
         self.view = ViewHelper()
         self.jogo = CampoMinado()
+        self.bandeira_ativa = False
         self.view.abrir_tela(self.stack, self.tela_inicial)
 
     def closeEvent(self, event):
@@ -91,6 +90,33 @@ class CampoMinadoInterface(QMainWindow):
             self.barra_lateral.hide()
         else:
             self.barra_lateral.show()
+    
+    def toggle_bandeira(self):
+        self.bandeira_ativa = not self.bandeira_ativa
+        if self.bandeira_ativa:
+            self.botao_bandeira.setStyleSheet("""
+                QPushButton {
+                    background-color: #FF4C4C;
+                    color: white;
+                    font-size: 28px;
+                    border-radius: 10px;
+                }
+            """)
+        else:
+            self.botao_bandeira.setStyleSheet("""
+                QPushButton {
+                    background-color: none;
+                    color: gray;
+                    font-size: 28px;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #3a3a3a;
+                }
+                QPushButton:pressed {
+                    background-color: #000000;
+                }
+            """)
 
     #############  BLOCOS  #################
     def bloco(self, num, largura, altura):
@@ -104,34 +130,83 @@ class CampoMinadoInterface(QMainWindow):
         return bloco
     
     def adicionarJogada(self, num: int, layout: QVBoxLayout):
-        # Verifica se já existe imagem no layout
-        for i in range(layout.count()):
-            item = layout.itemAt(i).widget()
-            if isinstance(item, QLabel) and item.pixmap() is not None:
-                return  # Já tem imagem, não adiciona de novo
-        
         x = num // self.jogo.tamanho
         y = num % self.jogo.tamanho
 
         self.revelar_posicao(x, y, layout)
 
-    def revelar_posicao(self, posicao1, posicao2, layout: QVBoxLayout):
-        nome_image = self.jogo.retorna_imagem(posicao1, posicao2)
-        if self.jogo.existe_bomba(posicao1, posicao2):
-            self.revelar_bombas()
-            self.mostrar_vencedor(-1)
+    def marcar_bomba(self, posicao1, posicao2):
+        # Pega o bloco
+        bloco = self.grid.itemAtPosition(posicao1, posicao2).widget()
+        # Define o fundo vermelho para indicar bomba clicada
+        bloco.setStyleSheet("""
+            QFrame {
+                background-color: red;
+                border-radius: 8px;
+                border: 1px solid black;
+            }
+        """)
 
-        elif self.jogo.existe_numero(posicao1, posicao2):
+    def revelar_posicao(self, posicao1, posicao2, layout: QVBoxLayout = None):
+        # Se layout não foi passado, obtenha do grid
+        if layout is None:
+            bloco = self.grid.itemAtPosition(posicao1, posicao2).widget()
+            layout = bloco.layout()
+
+        if self.bandeira_ativa:
+            self.colocar_alerta(posicao1, posicao2, layout)
+            return
+
+        if self.jogo.revelada(posicao1, posicao2) or self.jogo.existe_alerta(posicao1, posicao2):
+            return
+
+        nome_image = self.jogo.retorna_imagem(posicao1, posicao2)
+        
+        if self.jogo.existe_bomba(posicao1, posicao2):
+            self.marcar_bomba(posicao1, posicao2)
+            self.revelar_bombas()
+            self.fim_jogo(-1)
+            return
+
+        if self.jogo.existe_numero(posicao1, posicao2):
             imagem = WidgetHelper.imagem(nome_image, scaled=30)
             layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
-            if self.jogo.jogo[posicao1][posicao2] == 0:
-                # Se for zero, revelar posições adjacentes
-                for x in range(max(0, posicao1-1), min(self.jogo.tamanho, posicao1+2)):
-                    for y in range(max(0, posicao2-1), min(self.jogo.tamanho, posicao2+2)):
-                        if (x != posicao1 or y != posicao2) and self.jogo.existe_espaco(x, y):
-                            self.revelar_posicao(x, y, layout)
-        return None
+        self.jogo.marcar_posicao_revelada(posicao1, posicao2)
+
+        if self.jogo.jogo[posicao1][posicao2] == 0:
+            self.revelar_vazio(posicao1, posicao2)
+        
+        if self.jogo.venceu():
+            self.fim_jogo(1)
+            return
+
+    def colocar_alerta(self, posicao1, posicao2, layout: QVBoxLayout):
+        if self.jogo.revelada(posicao1, posicao2):
+            return
+
+        if not self.jogo.existe_alerta(posicao1, posicao2):
+            self.jogo.marcar_posicao_alerta(posicao1, posicao2)
+            imagem = WidgetHelper.imagem(self.jogo.alerta, scaled=30)
+            imagem.setObjectName("bandeira")  # <–– nome para identificar depois
+            layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        else:
+            self.jogo.tirar_alerta(posicao1, posicao2)
+
+            # Procura por um widget com nome "bandeira" e remove
+            for i in range(layout.count()):
+                widget = layout.itemAt(i).widget()
+                if widget and widget.objectName() == "bandeira":
+                    layout.removeWidget(widget)
+                    widget.deleteLater()
+                    break  # para após remover uma única bandeira
+
+    def revelar_vazio(self, posicao1, posicao2):
+        for x in range(max(0, posicao1 - 1), min(self.jogo.tamanho, posicao1 + 2)):
+            for y in range(max(0, posicao2 - 1), min(self.jogo.tamanho, posicao2 + 2)):
+                if (x, y) != (posicao1, posicao2) and self.jogo.existe_espaco(x, y):
+                    self.revelar_posicao(x, y)
     
     def revelar_bombas(self):
         for i in range(self.jogo.tamanho):
@@ -143,15 +218,17 @@ class CampoMinadoInterface(QMainWindow):
                     imagem = WidgetHelper.imagem(nome_image, scaled=30)
                     layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
-    def mostrar_vencedor(self, vencedor):
+    def fim_jogo(self, vencedor):
         if vencedor == 1:
             texto = "Você venceu!"
+            cor = "green"
         elif vencedor == -1:
             texto = "Você perdeu!"
+            cor = "red"
         else:
             return
 
-        self.mensagem_vencedor = MensagemVencedor(self, texto, on_reiniciar=self._reiniciar_jogo)
+        self.mensagem_vencedor = MensagemVencedor(self, mensagem=texto, cor_texto=cor, on_reiniciar=self._reiniciar_jogo)
         self.mensagem_vencedor.show()
 
     def _reiniciar_jogo(self):
@@ -335,6 +412,15 @@ class CampoMinadoInterface(QMainWindow):
             acao= self.toggle_menu
         )
         barra_superior.addWidget(botao_menu)
+
+        self.botao_bandeira = WidgetHelper.botao(
+            nome="🚩", fonte=40,
+            largura=50, altura=50,
+            backcolor="", hover="#3a3a3a", border="",
+            pressed='#000000', fontcolor="gray",
+            acao=self.toggle_bandeira
+        )
+        barra_superior.addWidget(self.botao_bandeira)
 
         return barra_superior
 
