@@ -20,10 +20,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m venv .venv
-          .venv\Scripts\activate
-          pip install -r requirements.txt
+          .venv\Scripts\activate && pip install -r requirements.txt
 
       - name: Build with PyInstaller
+        shell: cmd
         run: |
           .venv\Scripts\activate
           pyinstaller --name CampoMinado --onefile --windowed ^
@@ -84,12 +84,18 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           pip install -r requirements.txt
+          pip install pillow
+
+      - name: Convert .ico to .icns
+        run: |
+          source .venv/bin/activate
+          python -c "from PIL import Image; Image.open('Images/campo-minado.ico').save('Images/campo-minado.icns')"
 
       - name: Build with PyInstaller
         run: |
           source .venv/bin/activate
           pyinstaller --name CampoMinado --onefile --windowed \
-            --icon=Images/campo-minado.ico \
+            --icon=Images/campo-minado.icns \
             --add-data "Images:Images" \
             Jogo/interface.py
 
