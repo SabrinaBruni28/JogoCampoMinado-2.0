@@ -1,0 +1,100 @@
+name: Build Campo Minado
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows Executable
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv\Scripts\activate
+          pip install -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: |
+          .venv\Scripts\activate
+          pyinstaller --name CampoMinado --onefile --windowed ^
+            --icon=Images/campo-minado.ico ^
+            --add-data "Images;Images" ^
+            Jogo/interface.py
+
+      - name: Upload Windows Executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: CampoMinado-Windows
+          path: dist/CampoMinado.exe
+
+  build-linux:
+    name: Build Linux Executable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: |
+          source .venv/bin/activate
+          pyinstaller --name CampoMinado --onefile --windowed \
+            --icon=Images/campo-minado.ico \
+            --add-data "Images:Images" \
+            Jogo/interface.py
+
+      - name: Upload Linux Executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: CampoMinado-Linux
+          path: dist/CampoMinado
+
+  build-macos:
+    name: Build macOS Executable
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: |
+          source .venv/bin/activate
+          pyinstaller --name CampoMinado --onefile --windowed \
+            --icon=Images/campo-minado.ico \
+            --add-data "Images:Images" \
+            Jogo/interface.py
+
+      - name: Upload macOS Executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: CampoMinado-macOS
+          path: dist/CampoMinado
