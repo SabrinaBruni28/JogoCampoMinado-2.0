@@ -56,11 +56,7 @@ Este projeto foi desenvolvido para treinar habilidades com interfaces gráficas 
 Ideal para aprender manipulação de eventos, layouts em PyQt6 e lógica de jogo em grade.
 
 ---
+## 🧑‍💻 Autor
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT.  
-Sinta-se livre para estudar, modificar e compartilhar. 😊
-
----
+Desenvolvido por [Sabrina Bruni](https://github.com/SabrinaBruni28)
 
