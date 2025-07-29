@@ -74,6 +74,7 @@ class CampoMinadoInterface(QMainWindow):
         self.view = ViewHelper()
         self.jogo = CampoMinado()
         self.bandeira_ativa = False
+        self.setStyleSheet("background-color: #121212;")
         self.view.abrir_tela(self.stack, self.tela_inicial)
 
     def closeEvent(self, event):

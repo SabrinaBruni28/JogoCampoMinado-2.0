@@ -54,10 +54,13 @@ class WidgetHelper(QWidget):
         return preco_label
 
     @staticmethod
-    def label_b(label, font_size=20, alignment=Qt.AlignmentFlag.AlignCenter):
+    def label_b(label, font_size=20, alignment=Qt.AlignmentFlag.AlignCenter, color="#E0E0E0"):
         label_b = QLabel(f"<b>{label}</b>")
         label_b.setAlignment(alignment)
-        label_b.setStyleSheet(f"font-size: {font_size}px;")
+        label_b.setStyleSheet(f"""
+            font-size: {font_size}px;
+            color: {color};
+        """)
         return label_b
     
     @staticmethod
@@ -351,18 +354,22 @@ class ViewHelper(QWidget):
         return tela
 
 class CaixaConfirmacao(QDialog):
-    def __init__(self, parent=None, titulo=None, mensagem = None, fonte=20, largura=400, altura=100):
+    def __init__(self, parent=None, titulo=None, mensagem = None,  color="#E0E0E0", fonte=20, largura=400, altura=100):
         super().__init__(parent)
         self.setWindowTitle(titulo)
         self.setMinimumSize(largura, altura)
 
         layout = QVBoxLayout()
-        mensagem = QLabel(f"<p style='font-size:{fonte}px;'>{mensagem}</p>", self)
+        mensagem = QLabel(f"<p style='font-size:{fonte}px; color: {color};'>{mensagem}</p>", self)
         layout.addWidget(mensagem)
 
         botoes = QHBoxLayout()
         btn_sim = QPushButton("Sim", self)
         btn_nao = QPushButton("Não", self)
+
+        btn_sim.setStyleSheet(f"color: {color}; font-size: 18px;")
+        btn_nao.setStyleSheet(f"color: {color}; font-size: 18px;")
+
         botoes.addWidget(btn_sim)
         botoes.addWidget(btn_nao)
 
