@@ -174,7 +174,7 @@ class CampoMinadoInterface(QMainWindow):
 
         self.jogo.marcar_posicao_revelada(posicao1, posicao2)
 
-        if self.jogo.jogo[posicao1][posicao2] == 0:
+        if self.jogo.existe_espaco(posicao1, posicao2):
             self.revelar_vazio(posicao1, posicao2)
         
         if self.jogo.venceu():
@@ -205,7 +205,7 @@ class CampoMinadoInterface(QMainWindow):
     def revelar_vazio(self, posicao1, posicao2):
         for x in range(max(0, posicao1 - 1), min(self.jogo.tamanho, posicao1 + 2)):
             for y in range(max(0, posicao2 - 1), min(self.jogo.tamanho, posicao2 + 2)):
-                if (x, y) != (posicao1, posicao2) and self.jogo.existe_espaco(x, y):
+                if (x, y) != (posicao1, posicao2) and self.jogo.existe_numero(x, y):
                     self.revelar_posicao(x, y)
     
     def revelar_bombas(self):
