@@ -78,7 +78,7 @@ class WidgetHelper(QWidget):
             QFrame {
                 border: 1px;
                 border-radius: 8px;
-                background-color: #fff;
+                background-color: gray;
                 color: #000;
                 font-size: 20px;
             }

@@ -148,6 +148,23 @@ class CampoMinadoInterface(QMainWindow):
             }
         """)
 
+    def marcar_revelada(self, posicao1, posicao2):
+        # Pega o bloco
+        bloco = self.grid.itemAtPosition(posicao1, posicao2).widget()
+        # Define o fundo vermelho para indicar bomba clicada
+        bloco.setStyleSheet("""
+            QFrame {
+                border: 1px;
+                border-radius: 8px;
+                background-color: #fff;
+                color: #000;
+                font-size: 20px;
+            }
+            QFrame:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+
     def revelar_posicao(self, posicao1, posicao2, layout: QVBoxLayout = None):
         # Se layout não foi passado, obtenha do grid
         if layout is None:
@@ -174,6 +191,7 @@ class CampoMinadoInterface(QMainWindow):
             layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self.jogo.marcar_posicao_revelada(posicao1, posicao2)
+        self.marcar_revelada(posicao1, posicao2)
 
         if self.jogo.existe_espaco(posicao1, posicao2):
             self.revelar_vazio(posicao1, posicao2)
@@ -218,6 +236,7 @@ class CampoMinadoInterface(QMainWindow):
                     layout = bloco.layout()
                     imagem = WidgetHelper.imagem(nome_image, scaled=self.tamanho_imagem)
                     layout.addWidget(imagem, alignment=Qt.AlignmentFlag.AlignHCenter)
+                    self.marcar_revelada(i, j)
 
     def fim_jogo(self, vencedor):
         if vencedor == 1:
