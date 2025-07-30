@@ -4,7 +4,7 @@ Bem-vindo ao **Campo Minado**, um clássico jogo de lógica agora com uma interf
 Você pode escolher entre **3 tamanhos de tabuleiro** e testar sua habilidade em escapar das bombas.
 
 <div align="center">
-  <img src="Images/campo-minado.png" alt="campo-minado" width="200"/>
+  <img src="https://play-lh.googleusercontent.com/tnsq20TaSFBOpR4UE1pjB2qf4CZDYJsX1QimrAj9BuVnyOJwDOCiWOS5cb2p-tLuHA=w240-h480-rw" alt="campo-minado" width="200"/>
 </div>
 
 ---
