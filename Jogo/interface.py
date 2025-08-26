@@ -1,13 +1,18 @@
 import sys
 from view_utils import  WidgetHelper, CaixaConfirmacao, ViewHelper
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PyQt6.QtMultimedia import QSoundEffect
 from campo_minado import CampoMinado
 from PyQt6.QtGui import QFont
+from PyQt6.QtCore import QUrl
 from PyQt6.QtCore import Qt
 
 from PyQt6.QtWidgets import (
    QApplication, QMainWindow, QWidget, QLabel, QDialog,
    QVBoxLayout, QHBoxLayout, QFrame, QStackedWidget, QSizePolicy, QPushButton
 )
+
+import os
 
 class MensagemVencedor(QWidget):
     def __init__(self, parent=None, mensagem="", cor_texto="red", on_reiniciar=None):
@@ -74,16 +79,39 @@ class CampoMinadoInterface(QMainWindow):
         self.view = ViewHelper()
         self.jogo = CampoMinado()
         self.bandeira_ativa = False
+        self.defineSom()
         self.setStyleSheet("background-color: #121212;")
         self.view.abrir_tela(self.stack, self.tela_inicial)
 
+    def defineSom(self):
+        # Carrega o som de clique em memória (rápido, sem delay)
+        self.somClick = QSoundEffect()
+        self.somClick.setSource(QUrl.fromLocalFile(WidgetHelper.caminho_absoluto("Sounds/click.wav")))
+        self.somClick.setVolume(0.5)
+
+        # Sons maiores (win, game_over) ficam no QMediaPlayer
+        self.audio_output = QAudioOutput()
+        self.player = QMediaPlayer()
+        self.player.setAudioOutput(self.audio_output)
+
+    def tocarSom(self, caminho = '', efeito=False):
+        if efeito:  # para sons curtos
+            self.somClick.play()
+        else:       # para músicas/sons longos
+            self.player.setSource(QUrl.fromLocalFile(WidgetHelper.caminho_absoluto(caminho)))
+            self.audio_output.setVolume(0.5)
+            self.player.play()
+
     def closeEvent(self, event):
+        self.tocarSom(efeito=True)
         dialogo = CaixaConfirmacao(self, titulo="Confirmar saída", mensagem="Você tem certeza que deseja sair?")
         resposta = dialogo.exec()
 
         if resposta == QDialog.DialogCode.Accepted:
+            self.tocarSom(efeito=True)
             event.accept()
         else:
+            self.tocarSom(efeito=True)
             event.ignore()
     
     def toggle_menu(self):
@@ -179,6 +207,7 @@ class CampoMinadoInterface(QMainWindow):
             return
 
         nome_image = self.jogo.retorna_imagem(posicao1, posicao2)
+        self.tocarSom("Sounds/select.mp3")
         
         if self.jogo.existe_bomba(posicao1, posicao2):
             self.marcar_bomba(posicao1, posicao2)
@@ -204,6 +233,7 @@ class CampoMinadoInterface(QMainWindow):
         if self.jogo.revelada(posicao1, posicao2):
             return
 
+        self.tocarSom("Sounds/select.mp3")
         if not self.jogo.existe_alerta(posicao1, posicao2):
             self.jogo.marcar_posicao_alerta(posicao1, posicao2)
             imagem = WidgetHelper.imagem(self.jogo.alerta, scaled=self.tamanho_imagem)
@@ -240,15 +270,21 @@ class CampoMinadoInterface(QMainWindow):
 
     def fim_jogo(self, vencedor):
         if vencedor == 1:
+            self.tocarSom("Sounds/win.mp3")
             texto = "Você venceu!"
             cor = "green"
         elif vencedor == -1:
+            self.tocarSom("Sounds/game_over.mp3")
             texto = "Você perdeu!"
             cor = "red"
         else:
             return
 
-        self.mensagem_vencedor = MensagemVencedor(self, mensagem=texto, cor_texto=cor, on_reiniciar=self._reiniciar_jogo)
+        def on_reiniciar():
+            self.tocarSom(efeito=True)
+            self._reiniciar_jogo()
+
+        self.mensagem_vencedor = MensagemVencedor(self, mensagem=texto, cor_texto=cor, on_reiniciar=on_reiniciar)
         self.mensagem_vencedor.show()
 
     def _reiniciar_jogo(self):
@@ -339,7 +375,7 @@ class CampoMinadoInterface(QMainWindow):
             hover='#FF4C4C',
             pressed='#E04343',
             border='solid #FF4C4C',
-            acao= lambda: self.view.abrir_tela(self.stack, self.tela_opcao)
+            acao= lambda: (self.tocarSom(efeito=True), self.view.abrir_tela(self.stack, self.tela_opcao))
         )
         layout_vertical.addWidget(botao_jogar, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -372,7 +408,7 @@ class CampoMinadoInterface(QMainWindow):
             hover='#FF4C4C',
             pressed='#E04343',
             border='solid #FF4C4C',
-            acao= lambda: (self.jogo.reiniciar_jogo(8), self.view.abrir_tela(self.stack, self.tela_jogo))
+            acao= lambda: (self.tocarSom(efeito=True), self.jogo.reiniciar_jogo(8), self.view.abrir_tela(self.stack, self.tela_jogo))
         )
         layout_horizontal.addWidget(opcao_1)
 
@@ -384,7 +420,7 @@ class CampoMinadoInterface(QMainWindow):
             hover='#FF4C4C',
             pressed='#E04343',
             border='solid #FF4C4C',
-            acao= lambda: (self.jogo.reiniciar_jogo(10), self.view.abrir_tela(self.stack, self.tela_jogo))
+            acao= lambda: (self.tocarSom(efeito=True), self.jogo.reiniciar_jogo(10), self.view.abrir_tela(self.stack, self.tela_jogo))
         )
         layout_horizontal.addWidget(opcao_2)
 
@@ -396,7 +432,7 @@ class CampoMinadoInterface(QMainWindow):
             hover='#FF4C4C',
             pressed='#E04343',
             border='solid #FF4C4C',
-            acao= lambda: (self.jogo.reiniciar_jogo(16), self.view.abrir_tela(self.stack, self.tela_jogo))
+            acao= lambda: (self.tocarSom(efeito=True), self.jogo.reiniciar_jogo(16), self.view.abrir_tela(self.stack, self.tela_jogo))
         )
         layout_horizontal.addWidget(opcao_3)
         layout_vertical.addLayout(layout_horizontal, Qt.AlignmentFlag.AlignCenter)
@@ -429,7 +465,7 @@ class CampoMinadoInterface(QMainWindow):
             nome="Reiniciar Jogo", fontcolor="gray",
             backcolor="", hover="#3a3a3a", border="", pressed='#000000',
             largura=250, altura=100,
-            acao= self.reiniciar_jogo
+            acao= lambda: (self.tocarSom(efeito=True), self.reiniciar_jogo())
         )
 
         # Adicionando os botões ao layout da barra lateral
@@ -447,7 +483,7 @@ class CampoMinadoInterface(QMainWindow):
             largura=50, altura=50,
             backcolor="", hover="#3a3a3a", border="",
             pressed='#000000', fontcolor="gray",
-            acao= self.toggle_menu
+            acao= lambda: (self.tocarSom(efeito=True), self.toggle_menu())
         )
         barra_superior.addWidget(botao_menu)
 
@@ -456,7 +492,7 @@ class CampoMinadoInterface(QMainWindow):
             largura=50, altura=50,
             backcolor="", hover="#3a3a3a", border="",
             pressed='#000000', fontcolor="gray",
-            acao=self.toggle_bandeira
+            acao=lambda: (self.tocarSom(efeito=True), self.toggle_bandeira())
         )
         barra_superior.addWidget(self.botao_bandeira)
 
