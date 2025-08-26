@@ -47,6 +47,7 @@ Você pode escolher entre **3 tamanhos de tabuleiro** e testar sua habilidade em
 - `Jogo/view_utils.py`: Utilitários de UI
 - `Jogo/interface.py`: Interface gráfica principal
 - `Images/`: Pasta com imagens utilizadas no jogo
+- `Sounds/`: Pasta com sons utilizados no jogo
 
 ---
 
