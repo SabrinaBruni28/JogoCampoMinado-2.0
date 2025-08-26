@@ -445,8 +445,11 @@ class CampoMinadoInterface(QMainWindow):
         resposta = dialogo.exec()
 
         if resposta == QDialog.DialogCode.Accepted:
+            self.tocarSom(efeito=True)
             self.jogo.reiniciar_jogo(self.jogo.tamanho)
             self._reiniciar_jogo()
+        else:
+            self.tocarSom(efeito=True)
 
     ##########  PARTES DE TELAS  #############
     def menu_lateral(self):
