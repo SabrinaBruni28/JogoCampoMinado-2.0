@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-windows:
+    if: "!contains(github.event.head_commit.message, 'Update Readme')"
     name: Build Windows Executable
     runs-on: windows-latest
     steps:
@@ -29,7 +30,7 @@ jobs:
         shell: cmd
         run: |
           call .venv\Scripts\activate.bat
-          pyinstaller --name CampoMinado --onefile --windowed --icon=Images/campo-minado.ico --add-data "Images;Images" Jogo/interface.py
+          pyinstaller --name CampoMinado --onefile --windowed --icon=Images/campo-minado.ico --add-data "Images;Images" --add-data "Sounds;Sounds" Jogo/interface.py
   
       - name: Check dist folder contents
         shell: cmd
@@ -42,6 +43,7 @@ jobs:
           path: dist/CampoMinado.exe
 
   build-linux:
+    if: "!contains(github.event.head_commit.message, 'Update Readme')"
     name: Build Linux Executable
     runs-on: ubuntu-22.04
     steps:
@@ -64,6 +66,7 @@ jobs:
           pyinstaller --name CampoMinado --onefile --windowed \
             --icon=Images/campo-minado.ico \
             --add-data "Images:Images" \
+            --add-data "Sounds:Sounds" \
             Jogo/interface.py
 
       - name: Upload Linux Executable
@@ -73,6 +76,7 @@ jobs:
           path: dist/CampoMinado
 
   build-macos:
+    if: "!contains(github.event.head_commit.message, 'Update Readme')"
     name: Build macOS Executable
     runs-on: macos-latest
     steps:
@@ -101,6 +105,7 @@ jobs:
           pyinstaller --name CampoMinado --onefile --windowed \
             --icon=Images/campo-minado.icns \
             --add-data "Images:Images" \
+            --add-data "Sounds:Sounds" \
             Jogo/interface.py
 
       - name: Upload macOS Executable
