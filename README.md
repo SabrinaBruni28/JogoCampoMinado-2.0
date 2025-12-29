@@ -9,14 +9,6 @@ Você pode escolher entre **3 tamanhos de tabuleiro** e testar sua habilidade em
 
 ---
 
-## Executáveis para download
-
-- [Executável Windows (CampoMinado.exe)](https://github.com/SabrinaBruni28/JogoCampoMinado-2.0/actions/runs/17224598847/artifacts/3848914764)
-- [Executável Linux (CampoMinado)](https://github.com/SabrinaBruni28/JogoCampoMinado-2.0/actions/runs/17224598847/artifacts/3848916316)
-- [Executável macOS (CampoMinado)](https://github.com/SabrinaBruni28/JogoCampoMinado-2.0/actions/runs/17224598847/artifacts/3848917091)
-
----
-
 ## 🎮 Funcionalidades
 
 ✅ Interface gráfica com PyQt6  
