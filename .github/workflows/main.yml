@@ -127,25 +127,28 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: CampoMinado-Windows
-          path: release
+          path: release/windows
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
           name: CampoMinado-Linux
-          path: release
+          path: release/linux
 
       - name: Download macOS Artifact
         uses: actions/download-artifact@v4
         with:
           name: CampoMinado-macOS
-          path: release
+          path: release/macos
 
       - name: Rename files
         run: |
-          mv release/CampoMinado.exe release/CampoMinado-Windows.exe
-          mv release/CampoMinado release/CampoMinado-Linux
-          mv release/CampoMinado release/CampoMinado-macOS || true
+          mv release/windows/CampoMinado.exe release/CampoMinado-Windows.exe
+          mv release/linux/CampoMinado release/CampoMinado-Linux
+          mv release/macos/CampoMinado release/CampoMinado-macOS
+
+      - name: Fix Linux executable permission
+        run: chmod +x release/CampoMinado-Linux
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
