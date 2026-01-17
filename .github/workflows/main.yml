@@ -113,3 +113,49 @@ jobs:
         with:
           name: CampoMinado-macOS
           path: dist/CampoMinado
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux, build-macos]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CampoMinado-Windows
+          path: release
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CampoMinado-Linux
+          path: release
+
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CampoMinado-macOS
+          path: release
+
+      - name: Rename files
+        run: |
+          mv release/CampoMinado.exe release/CampoMinado-Windows.exe
+          mv release/CampoMinado release/CampoMinado-Linux
+          mv release/CampoMinado release/CampoMinado-macOS || true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Campo Minado v${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: |
+            release/CampoMinado-Windows.exe
+            release/CampoMinado-Linux
+            release/CampoMinado-macOS
+
