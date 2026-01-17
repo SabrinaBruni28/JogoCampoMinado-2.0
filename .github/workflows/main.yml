@@ -147,8 +147,13 @@ jobs:
           mv release/linux/CampoMinado release/CampoMinado-Linux
           mv release/macos/CampoMinado release/CampoMinado-macOS
 
-      - name: Fix Linux executable permission
-        run: chmod +x release/CampoMinado-Linux
+      - name: Package Linux and macOS binaries
+        run: |
+          chmod +x release/CampoMinado-Linux
+          chmod +x release/CampoMinado-macOS
+
+          tar -czf release/CampoMinado-Linux.tar.gz -C release CampoMinado-Linux
+          tar -czf release/CampoMinado-macOS.tar.gz -C release CampoMinado-macOS
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -159,6 +164,5 @@ jobs:
           prerelease: false
           files: |
             release/CampoMinado-Windows.exe
-            release/CampoMinado-Linux
-            release/CampoMinado-macOS
-
+            release/CampoMinado-Linux.tar.gz
+            release/CampoMinado-macOS.tar.gz
